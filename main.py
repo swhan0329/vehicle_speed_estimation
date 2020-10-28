@@ -43,7 +43,7 @@ ms2kmh = 3.6
 class App:
     def __init__(self, video_src):
         self.track_len = 2
-        self.detect_interval = 4
+        self.detect_interval = 2
         self.tracks = []
         self.cam = video.create_capture(video_src)
         self.alpha=0.5
@@ -54,16 +54,16 @@ class App:
         cal_mask = np.zeros_like(first_frame[:, :, 0])
         view_mask = np.zeros_like(first_frame[:, :, 0])
         view_polygon = np.array([[440, 1920], [420, 220], [680, 250], [1080, 480], [1080, 1920]])
-        cal_polygon = np.array([[440, 600], [420, 350], [1080, 350], [1080, 600]])
+        cal_polygon = np.array([[440, 600], [420, 400], [1080, 400], [1080, 600]])
         prv1, prv2, prv3, prv4, prv5 = 0,0,0,0,0
         prn1, prn2, prn3, prn4, prn5 = 0, 0, 0, 0, 0
         ptn1, ptn2, ptn3, ptn4, ptn5 = 0, 0, 0, 0, 0
 
-        pg1 = np.array([[550, 490], [425, 500],[420, 570], [570, 570]])
-        pg2 = np.array([[570, 570], [555, 490], [680, 480], [720, 564]])
-        pg3 = np.array([[720, 564],[680, 480], [835, 470], [930, 540]])
-        pg4 = np.array([[930, 550], [835, 470], [970, 470], [1060, 550]])
-        pg5 = np.array([[1080, 550], [1070, 550],[970, 470], [1080, 470]])
+        pg1 = np.array([[550, 490], [425, 493],[420, 510], [570, 505]]) # RT, LT, LB, RB
+        pg2 = np.array([[565, 505], [555, 490], [680, 480], [720, 500]]) # LB, RT, LT, RB
+        pg3 = np.array([[680, 490],[690, 480], [800, 470], [800, 495]]) # LB, LT, RT, RB
+        pg4 = np.array([[840, 490], [820, 470], [950, 470], [960, 480]]) # LB, LT, LB, RB
+        pg5 = np.array([[1080, 480], [970, 480],[960, 470], [1080, 465]]) # RT, LB, LT, RB
 
         cv.fillConvexPoly(cal_mask, cal_polygon, 1)
         cv.fillConvexPoly(view_mask, view_polygon, 1)
@@ -85,7 +85,7 @@ class App:
                 frame_gray = cv.bitwise_and(frame_gray, frame_gray, mask=cal_mask)
 
                 vis = cv.bitwise_and(vis, vis, mask=view_mask)
-                cv.line(vis,(400, 575),(1080, 540),(0, 0, 255), 5)
+                cv.line(vis,(400, 510),(1080, 475),(0, 0, 255), 5)
                 cv.line(vis, (400, 495), (1080, 460), (0, 0, 255), 5)
 
                 cv.fillPoly(cmask, [pg1], (120, 0, 120), cv.LINE_AA)
@@ -174,28 +174,32 @@ class App:
                 prn5 = ptn5
 
                 if self.frame_idx % self.detect_interval == 0:
-                    if ptn1 > 10:
+                    if ptn1 > 5:
+                        #print("calc-1")
                         draw_str(vis, (900, 40), 'ptn1: %d' % ptn1)
-                        draw_str(vis, (30, 40), '1-lane speed: %d km/h' % v1)
-                    if ptn2 > 10:
+                        draw_str(vis, (30, 40), '1-lane speed: %d km/h' % v1, color=(0, 0, 255))
+                        prv1 = v1
+                    if ptn2 > 5:
+                        #print("calc-2")
                         draw_str(vis, (900, 80), 'ptn2: %d' % ptn2)
-                        draw_str(vis, (30, 80), '2-lane speed: %d km/h' % v2)
-                    if ptn3 > 10:
+                        draw_str(vis, (30, 80), '2-lane speed: %d km/h' % v2, color=(0, 0, 255))
+                        prv2 = v2
+                    if ptn3 > 5:
+                        #print("calc-3")
                         draw_str(vis, (900, 120), 'ptn3: %d' % ptn3)
-                        draw_str(vis, (30, 120), '3-lane speed: %d km/h' % v3)
-                    if ptn4 > 10:
+                        draw_str(vis, (30, 120), '3-lane speed: %d km/h' % v3, color=(0, 0, 255))
+                        prv3 = v3
+                    if ptn4 > 5:
+                        #print("calc-4")
                         draw_str(vis, (900, 160), 'ptn4: %d' % ptn4)
-                        draw_str(vis, (30, 160), '4-lane speed: %d km/h' % v4)
-                    if ptn5 > 10:
+                        draw_str(vis, (30, 160), '4-lane speed: %d km/h' % v4, color=(0, 0, 255))
+                        prv4 = v4
+                    if ptn5 > 5:
+                        #print("calc-5")
                         draw_str(vis, (900, 200), 'ptn5: %d' % ptn5)
-                        draw_str(vis, (30, 200), '5-lane speed: %d km/h' % v5)
+                        draw_str(vis, (30, 200), '5-lane speed: %d km/h' % v5, color=(0, 0, 255))
+                        prv5 = v5
 
-                    # Speed writing part
-                    prv1 = v1
-                    prv2 = v2
-                    prv3 = v3
-                    prv4 = v4
-                    prv5 = v5
 
                     mask = np.zeros_like(frame_gray)
                     mask[:] = 255
