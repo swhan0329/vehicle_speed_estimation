@@ -12,11 +12,3 @@ python main.py [input video name]
 ```
 python main.py
 ```
-# Result Video
-Version 0 (Master brunch)
-<br/>
-[![Video Label](http://img.youtube.com/vi/AEd7tev39Ns/0.jpg)](https://www.youtube.com/watch?v=AEd7tev39Ns=0s)
-<br/>
-Version 1 (v1 brunch)
-<br/>
-[![Video Label](http://img.youtube.com/vi/gHDH775W1kg/0.jpg)](https://www.youtube.com/watch?v=gHDH775W1kg=0s)
