@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 Lucas-Kanade tracker
 ====================
 Lucas-Kanade sparse optical flow demo. Uses goodFeaturesToTrack
@@ -12,44 +12,56 @@ lk_track.py [<video_source>]
 Keys
 ----
 ESC - exit
-'''
+"""
 
-# Python 2/3 compatibility
-from __future__ import print_function
-import matplotlib.pyplot as plt
+import sys
+import math
 import numpy as np
 import cv2 as cv
-import math
 
 import video
 from common import anorm2, draw_str
 
-lk_params = dict( winSize  = (15, 15),
-                  maxLevel = 2,
-                  criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+# Python 2/3 compatibility
+from __future__ import print_function
 
-feature_params = dict( maxCorners = 500,
-                       qualityLevel = 0.3,
-                       minDistance = 7,
-                       blockSize = 7 )
-
-fps = 30
-px2m1 = 0.0895
-px2m2 = 0.088
-px2m3 = 0.0774
-px2m4 = 0.0767
-px2m5 = 0.0736
-ms2kmh = 3.6
 class App:
+    """
+    The main application class that runs the Lucas-Kanade tracker
+    on the provided video source.
+    """
     def __init__(self, video_src):
         self.track_len = 2
         self.detect_interval = 4
         self.tracks = []
         self.cam = video.create_capture(video_src)
-        self.alpha=0.5
+        self.alpha = 0.5
         self.frame_idx = 0
 
     def run(self):
+        """
+        This method contains the main loop that processes each frame
+        and applies the Lucas-Kanade tracking algorithm.
+        """
+        # Lucas-Kanade parameters
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+
+        feature_params = dict(maxCorners=500,
+                              qualityLevel=0.3,
+                              minDistance=7,
+                              blockSize=7)
+
+        # Constants
+        fps = 30
+        px2m1 = 0.0895
+        px2m2 = 0.088
+        px2m3 = 0.0774
+        px2m4 = 0.0767
+        px2m5 = 0.0736
+        ms2kmh = 3.6
+
         ret, first_frame = self.cam.read()
         cal_mask = np.zeros_like(first_frame[:, :, 0])
         view_mask = np.zeros_like(first_frame[:, :, 0])
@@ -59,11 +71,11 @@ class App:
         prn1, prn2, prn3, prn4, prn5 = 0, 0, 0, 0, 0
         ptn1, ptn2, ptn3, ptn4, ptn5 = 0, 0, 0, 0, 0
 
-        pg1 = np.array([[550, 490], [425, 500],[420, 570], [570, 570]])
-        pg2 = np.array([[570, 570], [555, 490], [680, 480], [720, 564]])
-        pg3 = np.array([[720, 564],[680, 480], [835, 470], [930, 540]])
-        pg4 = np.array([[930, 550], [835, 470], [970, 470], [1060, 550]])
-        pg5 = np.array([[1080, 550], [1070, 550],[970, 470], [1080, 470]])
+        polygon1 = np.array([[550, 490], [425, 500],[420, 570], [570, 570]])
+        polygon2 = np.array([[570, 570], [555, 490], [680, 480], [720, 564]])
+        polygon3 = np.array([[720, 564],[680, 480], [835, 470], [930, 540]])
+        polygon4 = np.array([[930, 550], [835, 470], [970, 470], [1060, 550]])
+        polygon5 = np.array([[1080, 550], [1070, 550],[970, 470], [1080, 470]])
 
         cv.fillConvexPoly(cal_mask, cal_polygon, 1)
         cv.fillConvexPoly(view_mask, view_polygon, 1)
@@ -88,11 +100,11 @@ class App:
                 cv.line(vis,(400, 575),(1080, 540),(0, 0, 255), 5)
                 cv.line(vis, (400, 495), (1080, 460), (0, 0, 255), 5)
 
-                cv.fillPoly(cmask, [pg1], (120, 0, 120), cv.LINE_AA)
-                cv.fillPoly(cmask, [pg2], (120, 120, 0), cv.LINE_AA)
-                cv.fillPoly(cmask, [pg3], (0, 120, 120), cv.LINE_AA)
-                cv.fillPoly(cmask, [pg4], (80, 0, 255), cv.LINE_AA)
-                cv.fillPoly(cmask, [pg5], (255, 0, 80), cv.LINE_AA)
+                cv.fillPoly(cmask, [polygon1], (120, 0, 120), cv.LINE_AA)
+                cv.fillPoly(cmask, [polygon2], (120, 120, 0), cv.LINE_AA)
+                cv.fillPoly(cmask, [polygon3], (0, 120, 120), cv.LINE_AA)
+                cv.fillPoly(cmask, [polygon4], (80, 0, 255), cv.LINE_AA)
+                cv.fillPoly(cmask, [polygon5], (255, 0, 80), cv.LINE_AA)
 
                 draw_str(vis, (30, 40), '1-lane speed: %d km/h' % prv1)
                 draw_str(vis, (30, 80), '2-lane speed: %d km/h' % prv2)
@@ -128,37 +140,37 @@ class App:
                     start = time.time()  # 시작 시간 저장
                     for idx, tr in enumerate(self.tracks):
                         #print(self.frame_idx, tr)
-                        result_pg1 = cv.pointPolygonTest(pg1, tr[0],True)
-                        result_pg2 = cv.pointPolygonTest(pg2, tr[0], True)
-                        result_pg3 = cv.pointPolygonTest(pg3, tr[0], True)
-                        result_pg4 = cv.pointPolygonTest(pg4, tr[0], True)
-                        result_pg5 = cv.pointPolygonTest(pg5, tr[0], True)
+                        result_polygon1 = cv.pointPolygonTest(polygon1, tr[0],True)
+                        result_polygon2 = cv.pointPolygonTest(polygon2, tr[0], True)
+                        result_polygon3 = cv.pointPolygonTest(polygon3, tr[0], True)
+                        result_polygon4 = cv.pointPolygonTest(polygon4, tr[0], True)
+                        result_polygon5 = cv.pointPolygonTest(polygon5, tr[0], True)
 
-                        if result_pg1 > 0:
+                        if result_polygon1 > 0:
                             ptn1 += 1
                             dif1 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
                             mm1 += math.sqrt(dif1[0]*dif1[0] + dif1[1]*dif1[1])
                             mmm1 = mm1/ptn1
                             v1 = mmm1*px2m1*fps*ms2kmh
-                        if result_pg2 > 0:
+                        if result_polygon2 > 0:
                             ptn2 += 1
                             dif2 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
                             mm2 += math.sqrt(dif2[0] * dif2[0] + dif2[1] * dif2[1])
                             mmm2 = mm2 / ptn2
                             v2 = mmm2 * px2m2 * fps*ms2kmh
-                        if result_pg3 > 0:
+                        if result_polygon3 > 0:
                             ptn3 += 1
                             dif3 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
                             mm3 += math.sqrt(dif3[0] * dif3[0] + dif3[1] * dif3[1])
                             mmm3 = mm3 / ptn3
                             v3 = mmm3 * px2m3 * fps*ms2kmh
-                        if result_pg4 > 0:
+                        if result_polygon4 > 0:
                             ptn4 += 1
                             dif4 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
                             mm4 += math.sqrt(dif4[0] * dif4[0] + dif4[1] * dif4[1])
                             mmm4 = mm4 / ptn4
                             v4 = mmm4 * px2m4 * fps*ms2kmh
-                        if result_pg5 > 0:
+                        if result_polygon5 > 0:
                             ptn5 += 1
                             dif5 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
                             mm5 += math.sqrt(dif5[0] * dif5[0] + dif5[1] * dif5[1])
@@ -222,11 +234,14 @@ class App:
         cv.destroyAllWindows()
 
 def main():
-    import sys
+    """
+    The main entry point of the application.
+    """
     try:
         video_src = sys.argv[1]
-    except:
+    except IndexError:
         video_src = 0
+
     app = App(video_src)
     app.run()
     print('Done')
