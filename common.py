@@ -229,7 +229,8 @@ def getsize(img):
 def mdot(*args):
     return reduce(np.dot, args)
 
-def draw_keypoints(vis, keypoints, color = (0, 255, 255)):
+def draw_keypoints(vis, keypoints, color=(0, 255, 255)):
+    """Draw keypoints on an image."""
     for kp in keypoints:
         x, y = kp.pt
         cv.circle(vis, (int(x), int(y)), 2, color)
