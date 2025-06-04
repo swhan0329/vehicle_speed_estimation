@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 
+"""Vehicle speed estimation using the Lucas-Kanade tracker.
+
+This script tracks feature points across frames to estimate the speed of
+vehicles appearing in a video stream. It can read frames either from a
+provided video file or from a webcam.
+
+Usage::
+
+    python main.py [<video_source>]
+
+Press ``ESC`` to exit the application.
 """
-Lucas-Kanade tracker
-====================
-Lucas-Kanade sparse optical flow demo. Uses goodFeaturesToTrack
-for track initialization and back-tracking for match verification
-between frames.
-Usage
------
-lk_track.py [<video_source>]
-Keys
-----
-ESC - exit
-"""
+
+from __future__ import print_function
 
 import sys
 import math
 import numpy as np
 import cv2 as cv
+import time
 
 import video
 from common import anorm2, draw_str
-
-# Python 2/3 compatibility
-from __future__ import print_function
 
 class App:
     """
@@ -39,9 +38,10 @@ class App:
         self.frame_idx = 0
 
     def run(self):
-        """
-        This method contains the main loop that processes each frame
-        and applies the Lucas-Kanade tracking algorithm.
+        """Execute the tracking loop and estimate vehicle speeds.
+
+        Frames are processed one by one, feature points are tracked and the
+        resulting speeds for each lane are displayed on the output video.
         """
         # Lucas-Kanade parameters
         lk_params = dict(winSize=(15, 15),
@@ -135,48 +135,40 @@ class App:
                         cv.circle(vis, (x, y), 3, (0, 255, 0), -1)
                     self.tracks = new_tracks
 
-                    ptn1, ptn2, ptn3, ptn4, ptn5 = 0, 0, 0, 0, 0
-                    import time
-                    start = time.time()  # 시작 시간 저장
+                    ptn1 = ptn2 = ptn3 = ptn4 = ptn5 = 0
+                    start = time.time()  # record start time for profiling
                     for idx, tr in enumerate(self.tracks):
-                        #print(self.frame_idx, tr)
-                        result_polygon1 = cv.pointPolygonTest(polygon1, tr[0],True)
-                        result_polygon2 = cv.pointPolygonTest(polygon2, tr[0], True)
-                        result_polygon3 = cv.pointPolygonTest(polygon3, tr[0], True)
-                        result_polygon4 = cv.pointPolygonTest(polygon4, tr[0], True)
-                        result_polygon5 = cv.pointPolygonTest(polygon5, tr[0], True)
+                        results = [
+                            cv.pointPolygonTest(polygon1, tr[0], True),
+                            cv.pointPolygonTest(polygon2, tr[0], True),
+                            cv.pointPolygonTest(polygon3, tr[0], True),
+                            cv.pointPolygonTest(polygon4, tr[0], True),
+                            cv.pointPolygonTest(polygon5, tr[0], True),
+                        ]
 
-                        if result_polygon1 > 0:
+                        dist = np.linalg.norm(np.subtract(tr[0], tr[1]))
+                        if results[0] > 0:
                             ptn1 += 1
-                            dif1 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
-                            mm1 += math.sqrt(dif1[0]*dif1[0] + dif1[1]*dif1[1])
-                            mmm1 = mm1/ptn1
-                            v1 = mmm1*px2m1*fps*ms2kmh
-                        if result_polygon2 > 0:
+                            mm1 += dist
+                            v1 = (mm1 / ptn1) * px2m1 * fps * ms2kmh
+                        if results[1] > 0:
                             ptn2 += 1
-                            dif2 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
-                            mm2 += math.sqrt(dif2[0] * dif2[0] + dif2[1] * dif2[1])
-                            mmm2 = mm2 / ptn2
-                            v2 = mmm2 * px2m2 * fps*ms2kmh
-                        if result_polygon3 > 0:
+                            mm2 += dist
+                            v2 = (mm2 / ptn2) * px2m2 * fps * ms2kmh
+                        if results[2] > 0:
                             ptn3 += 1
-                            dif3 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
-                            mm3 += math.sqrt(dif3[0] * dif3[0] + dif3[1] * dif3[1])
-                            mmm3 = mm3 / ptn3
-                            v3 = mmm3 * px2m3 * fps*ms2kmh
-                        if result_polygon4 > 0:
+                            mm3 += dist
+                            v3 = (mm3 / ptn3) * px2m3 * fps * ms2kmh
+                        if results[3] > 0:
                             ptn4 += 1
-                            dif4 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
-                            mm4 += math.sqrt(dif4[0] * dif4[0] + dif4[1] * dif4[1])
-                            mmm4 = mm4 / ptn4
-                            v4 = mmm4 * px2m4 * fps*ms2kmh
-                        if result_polygon5 > 0:
+                            mm4 += dist
+                            v4 = (mm4 / ptn4) * px2m4 * fps * ms2kmh
+                        if results[4] > 0:
                             ptn5 += 1
-                            dif5 = tuple(map(lambda i, j: i - j, tr[0], tr[1]))
-                            mm5 += math.sqrt(dif5[0] * dif5[0] + dif5[1] * dif5[1])
-                            mmm5 = mm5 / ptn5
-                            v5 = mmm5 * px2m5 * fps*ms2kmh
-                    #print("time :", time.time() - start)  # 현재시각 - 시작시간 = 실행 시간
+                            mm5 += dist
+                            v5 = (mm5 / ptn5) * px2m5 * fps * ms2kmh
+                    # print elapsed time for debugging
+                    # print("time :", time.time() - start)
                     cv.polylines(vis, [np.int32(tr) for tr in self.tracks], False, (0, 0, 255))
 
                 prn1 = ptn1

@@ -55,3 +55,9 @@ python main.py
 ### Additional Notes
 - Ensure that your video has a clear view of the road and vehicles for accurate speed estimation.
 - Adjust parameters in `common.py` if needed to fit specific requirements or to improve performance.
+
+### Running Tests
+Execute the unit tests with Python's built-in test runner:
+```bash
+python -m unittest discover -s tests
+```
