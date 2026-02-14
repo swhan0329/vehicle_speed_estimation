@@ -34,6 +34,11 @@ This project uses the optical flow algorithm, specifically the Lucas-Kanade trac
    python main.py
    ```
 
+3. **Additional Options**
+   ```bash
+   python main.py [input video name] --output output.mp4 --show
+   ```
+
 ### File Descriptions
 
 - **main.py**: The main script to run the vehicle speed estimation.
@@ -55,6 +60,13 @@ python main.py
 ### Additional Notes
 - Ensure that your video has a clear view of the road and vehicles for accurate speed estimation.
 - Adjust parameters in `common.py` if needed to fit specific requirements or to improve performance.
+- The road-region settings are hardcoded for a specific camera view in `main.py`:
+  - `view_polygon`
+  - `cal_polygon`
+  - `polygon1` ~ `polygon5` (lane areas)
+- These coordinates must be re-collected and re-tuned manually for each new road/camera angle/resolution.  
+  If not updated, lane assignment and speed estimates can be incorrect.
+- Pixel-to-meter scale values are also hardcoded (`px2m1` ~ `px2m5`) and should be recalibrated per camera setup.
 
 ### Running Tests
 Execute the unit tests with Python's built-in test runner:

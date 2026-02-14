@@ -78,9 +78,9 @@ def mtx2rvec(R):
     axis = np.cross(vt[0], vt[1])
     return axis * np.arctan2(s, c)
 
-def draw_str(dst, target, s):
+def draw_str(dst, target, s, color=(255, 255, 255), thickness=3, font_scale=1.0):
     x, y = target
-    cv.putText(dst, s, (x, y), cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255),3, cv.LINE_AA)
+    cv.putText(dst, s, (x, y), cv.FONT_HERSHEY_SIMPLEX, font_scale, color, thickness, cv.LINE_AA)
 
 class Sketcher:
     def __init__(self, windowname, dests, colors_func):
@@ -220,7 +220,7 @@ def mosaic(w, imgs):
     pad = np.zeros_like(img0)
     imgs = it.chain([img0], imgs)
     rows = grouper(w, imgs, pad)
-    return np.vstack(map(np.hstack, rows))
+    return np.vstack(list(map(np.hstack, rows)))
 
 def getsize(img):
     h, w = img.shape[:2]
