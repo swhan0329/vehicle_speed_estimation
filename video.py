@@ -175,8 +175,10 @@ def create_capture(source = 0, fallback = presets['chess']):
     cap = None
     if source == 'synth':
         Class = classes.get(params.get('class', None), VideoSynthBase)
-        try: cap = Class(**params)
-        except: pass
+        try:
+            cap = Class(**params)
+        except Exception as exc:
+            print('Warning: failed to initialize synth source: %s' % exc)
     else:
         cap = cv.VideoCapture(source)
         if 'size' in params:
