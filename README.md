@@ -3,6 +3,11 @@
 ### Overview
 This project uses the optical flow algorithm, specifically the Lucas-Kanade tracker, to estimate vehicle speeds from mono camera (CCTV) footage.
 
+### Demo
+[![Vehicle speed estimation demo](assets/demo.gif)](https://www.youtube.com/shorts/AEd7tev39Ns)
+
+Click the GIF to watch the full YouTube Shorts demo.
+
 ### Prerequisites
 - Python 3.x
 - Required libraries: `opencv-python`, `numpy`
