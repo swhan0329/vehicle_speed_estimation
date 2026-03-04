@@ -78,3 +78,6 @@ Execute the unit tests with Python's built-in test runner:
 ```bash
 python -m unittest discover -s tests
 ```
+
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=swhan0329/vehicle_speed_estimation&type=Date)](https://star-history.com/#swhan0329/vehicle_speed_estimation&Date)
