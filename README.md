@@ -57,6 +57,30 @@ Click the GIF to watch the full YouTube Shorts demo.
 Point order recommendation: click points clockwise for every polygon.  
 Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s`, `Enter`, `ESC`).
 
+### `px_to_meter` Setup (Important)
+`px_to_meter` is camera-dependent and road-dependent.
+
+- It must be recalibrated for each road and camera angle.
+- Prefer real-world references measured at the target lane position:
+  - lane width
+  - stop-line spacing
+  - known vehicle body length/width
+
+Recommended workflow:
+1. Use `app.calibrate.roi` to define lane polygons.
+2. Use `app.calibrate.scale` with measured distance to update each lane scale.
+3. Validate speeds on a short clip and fine-tune per lane if needed.
+
+Optional runtime override (without editing YAML):
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774
+```
+
+If one value is provided, it is applied to all lanes:
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.082
+```
+
 ### Project Structure
 - `main.py`: CLI entrypoint.
 - `app/pipeline.py`: frame loop orchestration.

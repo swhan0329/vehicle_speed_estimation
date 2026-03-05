@@ -31,6 +31,14 @@ Mac note:
 ## Scale calibration (`px_to_meter`)
 Each lane needs `px_to_meter = meters / pixels`.
 
+`px_to_meter` changes with road geometry and camera perspective.
+You should recalibrate per camera and per road.
+
+Recommended real-world references:
+- lane width in the target lane
+- stop-line or road marking interval
+- known vehicle body length/width (as an approximate reference)
+
 Options:
 - Direct pixel distance:
 ```bash
@@ -48,6 +56,16 @@ python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 
 ## Run with calibrated config
 ```bash
 python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
+```
+
+Optional runtime override:
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774 --output output.mp4 --show
+```
+
+If a single value is provided, it is applied to all lanes:
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.082 --output output.mp4 --show
 ```
 
 ## Overlay rendering check
