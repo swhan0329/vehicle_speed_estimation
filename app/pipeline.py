@@ -50,14 +50,31 @@ def _create_writer(
     if not output_path:
         return None
 
-    fourcc = cv.VideoWriter_fourcc(
-        *("mp4v" if output_path.lower().endswith(".mp4") else "XVID")
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    if output.suffix.lower() == ".mp4":
+        codec_candidates = ["mp4v", "avc1", "MJPG", "XVID"]
+    else:
+        codec_candidates = ["XVID", "MJPG", "mp4v", "avc1"]
+
+    attempted: list[str] = []
+    for codec in codec_candidates:
+        attempted.append(codec)
+        fourcc = cv.VideoWriter_fourcc(*codec)
+        writer = cv.VideoWriter(str(output), fourcc, fps, frame_size)
+        if writer.isOpened():
+            if len(attempted) > 1:
+                print(f"Output writer fallback succeeded with codec {codec}")
+            return writer
+        writer.release()
+
+    attempted_str = ", ".join(attempted)
+    print(
+        "Warning: unable to open output file: "
+        f"{output_path} (attempted codecs: {attempted_str})"
     )
-    writer = cv.VideoWriter(output_path, fourcc, fps, frame_size)
-    if not writer.isOpened():
-        print(f"Warning: unable to open output file: {output_path}")
-        return None
-    return writer
+    return None
 
 
 def run_pipeline(
