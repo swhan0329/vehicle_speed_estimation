@@ -75,7 +75,7 @@ If YAML is wrong, loader returns explicit errors. Common examples:
 - `lanes[0].px_to_meter must be > 0`
 
 ### Key input notes (OpenCV windows)
-- macOS: use single keys (`u/z/n/r/s`, `Enter`, `ESC`) instead of modifier combos.
+- macOS: try single keys first (`u/z/n/r/s`, `Enter`, `ESC`). If your setup only captures shortcuts with `Cmd`, use `Cmd+u/z/n/r/s`.
 - Windows/Linux: make sure the OpenCV window is focused before typing shortcuts.
 
 ### Docs

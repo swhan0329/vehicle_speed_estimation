@@ -283,7 +283,10 @@ def main() -> None:
     step_colors = build_step_colors(labels)
 
     print("Point order guidance: click points clockwise around each polygon.")
-    print("Mac shortcut tip: OpenCV windows reliably support single keys (u/z/n/r/s).")
+    print(
+        "Mac shortcut tip: try single keys first (u/z/n/r/s). "
+        "If not captured, use Cmd+u/z/n/r/s."
+    )
 
     capture = open_video_source(args.video)
     if capture is None or not capture.isOpened():
