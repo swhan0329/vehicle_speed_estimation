@@ -15,13 +15,14 @@ It is designed as a beginner-friendly reference implementation that can be reuse
 Click the GIF to watch the full YouTube Shorts demo.
 
 ### Calibration Snapshot
-![Calibrated overlay snapshot](assets/calibrated-overlay-snapshot.jpg)
+1. `view`
+![Calibration step view](assets/스크린샷 2026-03-05 오전 9.42.03.png)
 
-Overlay legend:
-- Orange boundary: `view` polygon
-- Yellow boundary: `calibration` polygon
-- Colored filled blocks: lane polygons
-- Green dots/lines: tracked feature points
+2. `calibration`
+![Calibration step calibration](assets/스크린샷 2026-03-05 오전 9.42.16.png)
+
+3. `lane`
+![Calibration step lane](assets/스크린샷 2026-03-05 오전 9.42.40.png)
 
 ### Quickstart
 1. Clone and install dependencies.
