@@ -84,5 +84,15 @@ Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s
 python -m unittest discover -s tests
 ```
 
+### Contributing
+Contributions are welcome.
+
+- For bug fixes, docs, calibration UX, and performance improvements, please open a PR.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+### License
+This project is licensed under the Apache License 2.0.  
+See [LICENSE](LICENSE) for details.
+
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=swhan0329/vehicle_speed_estimation&type=Date)](https://star-history.com/#swhan0329/vehicle_speed_estimation&Date)
