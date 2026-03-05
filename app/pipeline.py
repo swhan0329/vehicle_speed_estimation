@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import cv2 as cv
@@ -8,8 +9,37 @@ from app.io.video_source import open_video_source, resolve_fps
 from app.speed.estimator import LaneSpeedEstimator
 from app.speed.smoothing import SpeedSmoother
 from app.track.lk_tracker import LKTracker
+from app.types import RuntimeConfig
 from app.viz.overlay import OverlayRenderer
 from config.loader import load_config
+
+
+def apply_px_to_meter_override(
+    config: RuntimeConfig,
+    px_to_meter_override: list[float] | None,
+) -> RuntimeConfig:
+    if px_to_meter_override is None:
+        return config
+
+    lane_count = len(config.lanes)
+    if lane_count == 0:
+        raise ValueError("No lanes available in config to apply px_to_meter override")
+
+    if len(px_to_meter_override) == 1:
+        values = px_to_meter_override * lane_count
+    elif len(px_to_meter_override) == lane_count:
+        values = px_to_meter_override
+    else:
+        raise ValueError(
+            "px_to_meter override length mismatch: "
+            f"expected 1 or {lane_count} values, got {len(px_to_meter_override)}"
+        )
+
+    updated_lanes = [
+        replace(lane, px_to_meter=float(value))
+        for lane, value in zip(config.lanes, values)
+    ]
+    return replace(config, lanes=updated_lanes)
 
 
 def _create_writer(
@@ -36,8 +66,10 @@ def run_pipeline(
     output_path: str | None,
     show: bool,
     config_path: str | Path | None,
+    px_to_meter_override: list[float] | None = None,
 ) -> None:
     config = load_config(config_path=config_path)
+    config = apply_px_to_meter_override(config, px_to_meter_override)
 
     capture = open_video_source(video_src)
     if capture is None or not capture.isOpened():

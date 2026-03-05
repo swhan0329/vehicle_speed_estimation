@@ -15,6 +15,20 @@ from pathlib import Path
 from app.pipeline import run_pipeline
 
 
+def parse_px_to_meter_values(raw: str) -> list[float]:
+    tokens = [token.strip() for token in raw.split(",") if token.strip()]
+    if not tokens:
+        raise ValueError("px_to_meter list is empty")
+
+    values: list[float] = []
+    for token in tokens:
+        value = float(token)
+        if value <= 0:
+            raise ValueError("px_to_meter must be > 0")
+        values.append(value)
+    return values
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Vehicle speed estimation from video input."
@@ -32,16 +46,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default=None,
         help="Optional YAML config path. Falls back to config/default.yaml.",
     )
+    parser.add_argument(
+        "--px-to-meter",
+        default=None,
+        help=(
+            "Optional override for lane scale values (meters per pixel). "
+            "Use one value for all lanes or comma-separated values per lane. "
+            "Examples: 0.082 or 0.0895,0.088,0.0774"
+        ),
+    )
     return parser.parse_args(argv)
 
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
+    px_to_meter_override = (
+        parse_px_to_meter_values(args.px_to_meter)
+        if args.px_to_meter is not None
+        else None
+    )
     run_pipeline(
         args.video_source,
         output_path=args.output,
         show=args.show,
         config_path=Path(args.config) if args.config else None,
+        px_to_meter_override=px_to_meter_override,
     )
     print("Done")
 

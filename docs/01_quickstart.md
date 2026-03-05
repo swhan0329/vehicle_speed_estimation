@@ -17,6 +17,11 @@ python main.py sample_video.mp4 --output output.mp4 --show
 python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
 ```
 
+Optional: quick lane scale override at runtime
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774 --output output.mp4 --show
+```
+
 ## 4) Minimal commands for calibration
 ```bash
 python -m app.calibrate.roi --video sample_video.mp4 --lanes 5 --output config/camera.yaml

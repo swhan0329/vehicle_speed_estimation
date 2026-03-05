@@ -16,13 +16,13 @@ Click the GIF to watch the full YouTube Shorts demo.
 
 ### Calibration Snapshot
 1. `view`
-![Calibration step view](assets/스크린샷 2026-03-05 오전 9.42.03.png)
+![Calibration step view](assets/calib-view.png)
 
 2. `calibration`
-![Calibration step calibration](assets/스크린샷 2026-03-05 오전 9.42.16.png)
+![Calibration step calibration](assets/calib-area.png)
 
 3. `lane`
-![Calibration step lane](assets/스크린샷 2026-03-05 오전 9.42.40.png)
+![Calibration step lane](assets/calib-lanes.png)
 
 ### Quickstart
 1. Clone and install dependencies.
@@ -56,6 +56,30 @@ Click the GIF to watch the full YouTube Shorts demo.
 
 Point order recommendation: click points clockwise for every polygon.  
 Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s`, `Enter`, `ESC`).
+
+### `px_to_meter` Setup (Important)
+`px_to_meter` is camera-dependent and road-dependent.
+
+- It must be recalibrated for each road and camera angle.
+- Prefer real-world references measured at the target lane position:
+  - lane width
+  - stop-line spacing
+  - known vehicle body length/width
+
+Recommended workflow:
+1. Use `app.calibrate.roi` to define lane polygons.
+2. Use `app.calibrate.scale` with measured distance to update each lane scale.
+3. Validate speeds on a short clip and fine-tune per lane if needed.
+
+Optional runtime override (without editing YAML):
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774
+```
+
+If one value is provided, it is applied to all lanes:
+```bash
+python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.082
+```
 
 ### Project Structure
 - `main.py`: CLI entrypoint.
