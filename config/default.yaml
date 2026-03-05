@@ -1,0 +1,85 @@
+runtime:
+  alpha: 0.5
+  detect_interval: 2
+  track_len: 2
+  min_points_for_speed: 5
+  fallback_fps: 30.0
+  preview_window_name: "lk_track"
+
+lk:
+  win_size: [15, 15]
+  max_level: 2
+  criteria_count: 10
+  criteria_eps: 0.03
+
+feature:
+  max_corners: 500
+  quality_level: 0.3
+  min_distance: 7
+  block_size: 7
+
+polygons:
+  view:
+    - [440, 1920]
+    - [420, 220]
+    - [680, 250]
+    - [1080, 480]
+    - [1080, 1920]
+  calibration:
+    - [440, 600]
+    - [420, 400]
+    - [1080, 400]
+    - [1080, 600]
+
+lanes:
+  - name: lane-1
+    polygon:
+      - [550, 490]
+      - [425, 493]
+      - [420, 510]
+      - [570, 505]
+    px_to_meter: 0.0895
+    color: [120, 0, 120]
+  - name: lane-2
+    polygon:
+      - [565, 505]
+      - [555, 490]
+      - [680, 480]
+      - [720, 500]
+    px_to_meter: 0.088
+    color: [120, 120, 0]
+  - name: lane-3
+    polygon:
+      - [680, 490]
+      - [690, 480]
+      - [800, 470]
+      - [800, 495]
+    px_to_meter: 0.0774
+    color: [0, 120, 120]
+  - name: lane-4
+    polygon:
+      - [840, 490]
+      - [820, 470]
+      - [950, 470]
+      - [960, 480]
+    px_to_meter: 0.0767
+    color: [80, 0, 255]
+  - name: lane-5
+    polygon:
+      - [1080, 480]
+      - [970, 480]
+      - [960, 470]
+      - [1080, 465]
+    px_to_meter: 0.0736
+    color: [255, 0, 80]
+
+overlay:
+  lines:
+    - start: [400, 510]
+      end: [1080, 475]
+      color: [0, 0, 255]
+      thickness: 5
+    - start: [400, 495]
+      end: [1080, 460]
+      color: [0, 0, 255]
+      thickness: 5

@@ -1,0 +1,8 @@
+.DS_Store
+.omx/
+__pycache__/
+*.py[cod]
+
+outputs/
+samples/
+config/camera.yaml

@@ -1,80 +1,85 @@
 ## Vehicle Speed Estimation
 
 ### Overview
-This project uses the optical flow algorithm, specifically the Lucas-Kanade tracker, to estimate vehicle speeds from mono camera (CCTV) footage.
+This project estimates vehicle speed from fixed monocular CCTV footage using the Lucas-Kanade optical flow tracker.
+It is designed as a beginner-friendly reference implementation that can be reused across cameras through ROI and scale calibration.
+
+### Applications
+- Traffic monitoring
+- ITS (Intelligent Transportation Systems) research
+- Computer vision education
 
 ### Demo
 [![Vehicle speed estimation demo](assets/demo.gif)](https://www.youtube.com/shorts/AEd7tev39Ns)
 
 Click the GIF to watch the full YouTube Shorts demo.
 
-### Prerequisites
-- Python 3.x
-- Required libraries: `opencv-python`, `numpy`
+### Calibration Snapshot
+![Calibrated overlay snapshot](assets/calibrated-overlay-snapshot.jpg)
 
-### Setup
+Overlay legend:
+- Orange boundary: `view` polygon
+- Yellow boundary: `calibration` polygon
+- Colored filled blocks: lane polygons
+- Green dots/lines: tracked feature points
 
-1. **Clone the Repository**
+### Quickstart
+1. Clone and install dependencies.
    ```bash
    git clone https://github.com/swhan0329/vehicle_speed_estimation.git
    cd vehicle_speed_estimation
-   ```
-
-2. **Install Dependencies**
-   ```bash
    pip install -r requirements.txt
    ```
-
-### Usage
-
-1. **With an Input Video**
+2. Run with default calibration.
    ```bash
-   python main.py [input video name]
+   python main.py sample_video.mp4 --output output.mp4 --show
    ```
-   Replace `[input video name]` with the path to your video file.
-
-2. **Without an Input Video**
-   The script will automatically use the webcam on your computer.
+3. Use a custom config for your camera.
    ```bash
-   python main.py
+   python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
    ```
 
-3. **Additional Options**
+### Calibration Workflow
+1. Collect polygons (view, calibration area, lane polygons).
    ```bash
-   python main.py [input video name] --output output.mp4 --show
+   python -m app.calibrate.roi --video sample_video.mp4 --lanes 5 --output config/camera.yaml
+   ```
+2. Set lane scale (`px_to_meter`) with known real-world distance.
+   ```bash
+   python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --point1 100 220 --point2 240 220
+   ```
+3. Run pipeline with calibrated config.
+   ```bash
+   python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
    ```
 
-### File Descriptions
+Point order recommendation: click points clockwise for every polygon.  
+Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s`, `Enter`, `ESC`).
 
-- **main.py**: The main script to run the vehicle speed estimation.
-- **video.py**: Contains functions to handle video input and processing.
-- **common.py**: Includes common functions and utilities used across the project.
-- **tst_scene_render.py**: Test and render scenes for visualization.
+### Project Structure
+- `main.py`: CLI entrypoint.
+- `app/pipeline.py`: frame loop orchestration.
+- `app/io/`: video source handling.
+- `app/detect/`: feature detection module.
+- `app/track/`: Lucas-Kanade tracker state/update.
+- `app/speed/`: lane assignment, speed estimation, smoothing.
+- `app/viz/`: overlays and debug rendering.
+- `app/calibrate/`: ROI/scale calibration CLIs.
+- `config/default.yaml`: default polygons, lane scales, runtime params.
+- `config/loader.py`: YAML load/validation/merge.
+- `tests/`: unit tests.
 
-### Example
-To run the speed estimation on a sample video:
-```bash
-python main.py sample_video.mp4
-```
+### Docs
+- [Quickstart](docs/01_quickstart.md)
+- [Calibration Guide](docs/02_calibration.md)
+- [Common Failure Modes](docs/03_common_failure_modes.md)
 
-To use the webcam for live speed estimation:
-```bash
-python main.py
-```
-
-### Additional Notes
-- Ensure that your video has a clear view of the road and vehicles for accurate speed estimation.
-- Adjust parameters in `common.py` if needed to fit specific requirements or to improve performance.
-- The road-region settings are hardcoded for a specific camera view in `main.py`:
-  - `view_polygon`
-  - `cal_polygon`
-  - `polygon1` ~ `polygon5` (lane areas)
-- These coordinates must be re-collected and re-tuned manually for each new road/camera angle/resolution.  
-  If not updated, lane assignment and speed estimates can be incorrect.
-- Pixel-to-meter scale values are also hardcoded (`px2m1` ~ `px2m5`) and should be recalibrated per camera setup.
+### Notes
+- Works best with fixed camera road scenes.
+- You must recalibrate ROI polygons and lane scale values per camera view.
+- Performance and accuracy can degrade with severe camera shake, heavy occlusion, or low frame rate footage.
 
 ### Running Tests
-Execute the unit tests with Python's built-in test runner:
 ```bash
 python -m unittest discover -s tests
 ```
