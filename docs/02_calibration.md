@@ -2,6 +2,11 @@
 
 This project requires per-camera calibration.
 
+## Most common setup mistakes (read first)
+- Point order: click polygon points clockwise for `view`, `calibration`, and all lanes.
+- Resolution mismatch: if input video resolution changes, recalibrate ROI and lane scale.
+- Missing scale: every lane needs `px_to_meter` (`meters / pixels`) and values differ by lane/camera.
+
 ## ROI calibration
 Collect these polygons in order:
 1. `view`: visible output region
@@ -10,7 +15,7 @@ Collect these polygons in order:
 
 Command:
 ```bash
-python -m app.calibrate.roi --video sample_video.mp4 --lanes 5 --output config/camera.yaml
+python -m app.calibrate.roi --video path/to/video.mp4 --lanes 5 --output config/camera.yaml
 ```
 
 Keys:
@@ -50,22 +55,32 @@ python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 
 ```
 - Interactive point picking:
 ```bash
-python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --video sample_video.mp4
+python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --interactive --video path/to/video.mp4
 ```
+- Interactive alias:
+```bash
+python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --click --video path/to/video.mp4
+```
+
+## Validation error examples
+If YAML shape is invalid, config loader raises explicit messages:
+- `polygons.view must contain at least 3 points`
+- `lanes must be a non-empty list`
+- `lanes[0].px_to_meter must be > 0`
 
 ## Run with calibrated config
 ```bash
-python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
+python main.py path/to/video.mp4 --config config/camera.yaml --output output.mp4 --show
 ```
 
 Optional runtime override:
 ```bash
-python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774 --output output.mp4 --show
+python main.py path/to/video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774 --output output.mp4 --show
 ```
 
 If a single value is provided, it is applied to all lanes:
 ```bash
-python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.082 --output output.mp4 --show
+python main.py path/to/video.mp4 --config config/camera.yaml --px-to-meter 0.082 --output output.mp4 --show
 ```
 
 ## Overlay rendering check

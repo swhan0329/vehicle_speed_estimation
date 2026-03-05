@@ -1,108 +1,92 @@
 ## Vehicle Speed Estimation
 
-### Overview
-This project estimates vehicle speed from fixed monocular CCTV footage using the Lucas-Kanade optical flow tracker.
-It is designed as a beginner-friendly reference implementation that can be reused across cameras through ROI and scale calibration.
+[![CI](https://github.com/swhan0329/vehicle_speed_estimation/actions/workflows/ci.yml/badge.svg)](https://github.com/swhan0329/vehicle_speed_estimation/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-### Applications
-- Traffic monitoring
-- ITS (Intelligent Transportation Systems) research
-- Computer vision education
+A modular OpenCV baseline for per-lane vehicle speed estimation from fixed monocular CCTV footage.
 
 ### Demo
 [![Vehicle speed estimation demo](assets/demo.gif)](https://www.youtube.com/shorts/AEd7tev39Ns)
+Click the GIF to open the YouTube Short.
 
-Click the GIF to watch the full YouTube Shorts demo.
+### 30-second Quickstart
+```bash
+pip install -r requirements.txt
+python main.py path/to/video.mp4 --output out.mp4 --show
+```
+If this runs, move to calibration for your own camera scene.
+
+### What you get
+- ROI polygons + lane scale calibration
+- Lucas-Kanade optical flow tracking baseline
+- Per-lane speed estimation + overlay video export
+
+### Applications
+- Traffic monitoring
+- ITS research
+- Computer vision education
+
+### Apply to your CCTV
+1. Calibrate ROI polygons.
+   ```bash
+   python -m app.calibrate.roi --video path/to/video.mp4 --lanes 5 --output config/camera.yaml
+   ```
+2. Set lane `px_to_meter` using measured real-world distance.
+   ```bash
+   python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --interactive --video path/to/video.mp4
+   ```
+3. Run with calibrated config.
+   ```bash
+   python main.py path/to/video.mp4 --config config/camera.yaml --output output.mp4 --show
+   ```
 
 ### Calibration Snapshot
-1. `view`
+View polygon (detectable area):
 ![Calibration step view](assets/calib-view.png)
 
-2. `calibration`
+Calibration area (scale reference area):
 ![Calibration step calibration](assets/calib-area.png)
 
-3. `lane`
+Lane polygons (lane assignment zones):
 ![Calibration step lane](assets/calib-lanes.png)
 
-### Quickstart
-1. Clone and install dependencies.
-   ```bash
-   git clone https://github.com/swhan0329/vehicle_speed_estimation.git
-   cd vehicle_speed_estimation
-   pip install -r requirements.txt
-   ```
-2. Run with default calibration.
-   ```bash
-   python main.py sample_video.mp4 --output output.mp4 --show
-   ```
-3. Use a custom config for your camera.
-   ```bash
-   python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
-   ```
-
-### Calibration Workflow
-1. Collect polygons (view, calibration area, lane polygons).
-   ```bash
-   python -m app.calibrate.roi --video sample_video.mp4 --lanes 5 --output config/camera.yaml
-   ```
-2. Set lane scale (`px_to_meter`) with known real-world distance.
-   ```bash
-   python -m app.calibrate.scale --config config/camera.yaml --lane 1 --meters 3.5 --point1 100 220 --point2 240 220
-   ```
-3. Run pipeline with calibrated config.
-   ```bash
-   python main.py sample_video.mp4 --config config/camera.yaml --output output.mp4 --show
-   ```
-
-Point order recommendation: click points clockwise for every polygon.  
-Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s`, `Enter`, `ESC`).
-
 ### `px_to_meter` Setup (Important)
-`px_to_meter` is camera-dependent and road-dependent.
+`px_to_meter` changes by road geometry and camera angle, so recalibration is required per camera/scene.
 
-- It must be recalibrated for each road and camera angle.
-- Prefer real-world references measured at the target lane position:
-  - lane width
-  - stop-line spacing
-  - known vehicle body length/width
+Recommended real-world references:
+- lane width (for example `3.5m`)
+- stop-line or road marking interval
+- known vehicle body length/width (approximate)
 
-Recommended workflow:
-1. Use `app.calibrate.roi` to define lane polygons.
-2. Use `app.calibrate.scale` with measured distance to update each lane scale.
-3. Validate speeds on a short clip and fine-tune per lane if needed.
-
-Optional runtime override (without editing YAML):
+Optional runtime override without editing YAML:
 ```bash
-python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774
+python main.py path/to/video.mp4 --config config/camera.yaml --px-to-meter 0.0895,0.088,0.0774
 ```
 
-If one value is provided, it is applied to all lanes:
+Single value applies to all lanes:
 ```bash
-python main.py sample_video.mp4 --config config/camera.yaml --px-to-meter 0.082
+python main.py path/to/video.mp4 --config config/camera.yaml --px-to-meter 0.082
 ```
 
-### Project Structure
-- `main.py`: CLI entrypoint.
-- `app/pipeline.py`: frame loop orchestration.
-- `app/io/`: video source handling.
-- `app/detect/`: feature detection module.
-- `app/track/`: Lucas-Kanade tracker state/update.
-- `app/speed/`: lane assignment, speed estimation, smoothing.
-- `app/viz/`: overlays and debug rendering.
-- `app/calibrate/`: ROI/scale calibration CLIs.
-- `config/default.yaml`: default polygons, lane scales, runtime params.
-- `config/loader.py`: YAML load/validation/merge.
-- `tests/`: unit tests.
+### Validation examples
+If YAML is wrong, loader returns explicit errors. Common examples:
+- `polygons.view must contain at least 3 points`
+- `lanes must be a non-empty list`
+- `lanes[0].px_to_meter must be > 0`
+
+### Key input notes (OpenCV windows)
+- macOS: use single keys (`u/z/n/r/s`, `Enter`, `ESC`) instead of modifier combos.
+- Windows/Linux: make sure the OpenCV window is focused before typing shortcuts.
 
 ### Docs
 - [Quickstart](docs/01_quickstart.md)
 - [Calibration Guide](docs/02_calibration.md)
 - [Common Failure Modes](docs/03_common_failure_modes.md)
 
-### Notes
-- Works best with fixed camera road scenes.
-- You must recalibrate ROI polygons and lane scale values per camera view.
-- Performance and accuracy can degrade with severe camera shake, heavy occlusion, or low frame rate footage.
+### Examples
+- [Run webcam](examples/run_webcam.md)
+- [Run video](examples/run_video.md)
+- [Calibrate a new camera](examples/calibrate_new_camera.md)
 
 ### Running Tests
 ```bash
@@ -110,14 +94,13 @@ python -m unittest discover -s tests
 ```
 
 ### Contributing
-Contributions are welcome.
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- For bug fixes, docs, calibration UX, and performance improvements, please open a PR.
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+### Citation
+If you use this project in research or education, see [CITATION.cff](CITATION.cff).
 
 ### License
-This project is licensed under the Apache License 2.0.  
-See [LICENSE](LICENSE) for details.
+This project is licensed under Apache License 2.0. See [LICENSE](LICENSE).
 
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=swhan0329/vehicle_speed_estimation&type=Date)](https://star-history.com/#swhan0329/vehicle_speed_estimation&Date)
