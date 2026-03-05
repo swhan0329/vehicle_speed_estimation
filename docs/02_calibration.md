@@ -30,8 +30,9 @@ Point direction recommendation:
 - Click points clockwise for every polygon (`view`, `calibration`, and each lane).
 
 Mac note:
-- In OpenCV windows, modifier shortcuts (for example `Cmd+Z`) are not always captured consistently.
-- Use single-key shortcuts above for stable behavior.
+- Try single-key shortcuts first.
+- On some macOS environments, key input is only detected with `Cmd` pressed.
+- If single keys do not work, use `Cmd+u/z/n/r/s`.
 
 ## Scale calibration (`px_to_meter`)
 Each lane needs `px_to_meter = meters / pixels`.
