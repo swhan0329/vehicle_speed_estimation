@@ -15,13 +15,14 @@ It is designed as a beginner-friendly reference implementation that can be reuse
 Click the GIF to watch the full YouTube Shorts demo.
 
 ### Calibration Snapshot
-![Calibrated overlay snapshot](assets/calibrated-overlay-snapshot.jpg)
+1. `view`
+![Calibration step view](assets/스크린샷 2026-03-05 오전 9.42.03.png)
 
-Overlay legend:
-- Orange boundary: `view` polygon
-- Yellow boundary: `calibration` polygon
-- Colored filled blocks: lane polygons
-- Green dots/lines: tracked feature points
+2. `calibration`
+![Calibration step calibration](assets/스크린샷 2026-03-05 오전 9.42.16.png)
+
+3. `lane`
+![Calibration step lane](assets/스크린샷 2026-03-05 오전 9.42.40.png)
 
 ### Quickstart
 1. Clone and install dependencies.
@@ -83,6 +84,16 @@ Mac shortcut note: OpenCV windows are most reliable with single keys (`u/z/n/r/s
 ```bash
 python -m unittest discover -s tests
 ```
+
+### Contributing
+Contributions are welcome.
+
+- For bug fixes, docs, calibration UX, and performance improvements, please open a PR.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+### License
+This project is licensed under the Apache License 2.0.  
+See [LICENSE](LICENSE) for details.
 
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=swhan0329/vehicle_speed_estimation&type=Date)](https://star-history.com/#swhan0329/vehicle_speed_estimation&Date)
