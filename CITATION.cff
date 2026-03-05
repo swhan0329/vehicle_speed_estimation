@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "Vehicle Speed Estimation"
+message: "If you use this project, please cite it using this metadata."
+type: software
+authors:
+  - family-names: "Han"
+    given-names: "Seowoo"
+    email: "swhan0329@gmail.com"
+repository-code: "https://github.com/swhan0329/vehicle_speed_estimation"
+url: "https://github.com/swhan0329/vehicle_speed_estimation"
+license: "Apache-2.0"

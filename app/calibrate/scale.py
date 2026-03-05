@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import cv2 as cv
 import numpy as np
@@ -95,6 +95,32 @@ def _pick_two_points(video_source: str) -> tuple[tuple[int, int], tuple[int, int
     return picked[0], picked[1]
 
 
+def resolve_pixel_distance(
+    *,
+    pixels: float | None,
+    point1: tuple[int, int] | None,
+    point2: tuple[int, int] | None,
+    interactive: bool,
+    video: str | None,
+    pick_points_fn: Callable[[str], tuple[tuple[int, int], tuple[int, int]]],
+) -> float:
+    if pixels is not None:
+        return float(pixels)
+
+    if point1 and point2:
+        return _distance(point1, point2)
+
+    if interactive or video:
+        source = video if video else "0"
+        selected_point1, selected_point2 = pick_points_fn(source)
+        return _distance(selected_point1, selected_point2)
+
+    raise ScaleError(
+        "Provide --pixels, --point1/--point2, or --interactive/--click/--video "
+        "for point picking."
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Calibrate lane px_to_meter scale.")
     parser.add_argument(
@@ -134,23 +160,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--video",
         default=None,
-        help="Video source for interactive point picking when --pixels is omitted",
+        help=(
+            "Video source used by interactive point picking. "
+            "Defaults to camera index 0 when --interactive/--click is used without --video."
+        ),
+    )
+    parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Open an interactive window and click two points to measure pixel distance.",
+    )
+    parser.add_argument(
+        "--click",
+        action="store_true",
+        help="Alias of --interactive.",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-
-    if args.pixels is not None:
-        pixel_distance = float(args.pixels)
-    elif args.point1 and args.point2:
-        pixel_distance = _distance(tuple(args.point1), tuple(args.point2))
-    elif args.video:
-        point1, point2 = _pick_two_points(args.video)
-        pixel_distance = _distance(point1, point2)
-    else:
-        raise ScaleError("Provide --pixels, --point1/--point2, or --video for point picking.")
+    interactive_enabled = bool(args.interactive or args.click)
+    point1 = tuple(args.point1) if args.point1 else None
+    point2 = tuple(args.point2) if args.point2 else None
+    pixel_distance = resolve_pixel_distance(
+        pixels=args.pixels,
+        point1=point1,
+        point2=point2,
+        interactive=interactive_enabled,
+        video=args.video,
+        pick_points_fn=_pick_two_points,
+    )
 
     px_to_meter = compute_px_to_meter(pixel_distance, args.meters)
 
