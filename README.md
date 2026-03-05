@@ -16,13 +16,13 @@ Click the GIF to watch the full YouTube Shorts demo.
 
 ### Calibration Snapshot
 1. `view`
-![Calibration step view](assets/스크린샷 2026-03-05 오전 9.42.03.png)
+![Calibration step view](assets/calib-view.png)
 
 2. `calibration`
-![Calibration step calibration](assets/스크린샷 2026-03-05 오전 9.42.16.png)
+![Calibration step calibration](assets/calib-area.png)
 
 3. `lane`
-![Calibration step lane](assets/스크린샷 2026-03-05 오전 9.42.40.png)
+![Calibration step lane](assets/calib-lanes.png)
 
 ### Quickstart
 1. Clone and install dependencies.
