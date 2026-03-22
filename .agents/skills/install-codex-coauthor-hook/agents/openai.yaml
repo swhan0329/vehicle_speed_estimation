@@ -1,0 +1,7 @@
+interface:
+  display_name: "Install Codex co-author hook"
+  short_description: "Enable the repo-local Codex Git attribution hook."
+  default_prompt: "Use $install-codex-coauthor-hook to install or repair automatic Codex co-author attribution in this repository."
+
+policy:
+  allow_implicit_invocation: false
