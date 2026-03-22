@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file=${1:?commit message file is required}
+commit_source=${2-}
+
+if [[ "${SKIP_AI_COAUTHORS:-0}" == "1" ]]; then
+  exit 0
+fi
+
+if [[ "$commit_source" == "merge" ]]; then
+  exit 0
+fi
+
+coauthors=()
+while IFS= read -r line; do
+  coauthors+=("$line")
+done < <(git config --get-all ai.coauthor || true)
+
+if [[ ${#coauthors[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+append_trailer() {
+  local entry=$1
+  local trailer="Co-authored-by: $entry"
+
+  if grep -Fiq "$trailer" "$msg_file"; then
+    return
+  fi
+
+  python3 - "$msg_file" "$trailer" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+trailer = sys.argv[2]
+text = path.read_text()
+normalized = text.rstrip("\n")
+if normalized:
+    normalized += "\n\n"
+normalized += trailer + "\n"
+path.write_text(normalized)
+PY
+}
+
+for coauthor in "${coauthors[@]}"; do
+  append_trailer "$coauthor"
+done
