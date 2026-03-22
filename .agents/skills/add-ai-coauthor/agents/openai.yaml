@@ -1,7 +1,0 @@
-interface:
-  display_name: "Add AI co-author"
-  short_description: "Add or list repo-local Git co-author trailers."
-  default_prompt: "Use $add-ai-coauthor to add or inspect repository-local Git co-author trailers in this repository."
-
-policy:
-  allow_implicit_invocation: false

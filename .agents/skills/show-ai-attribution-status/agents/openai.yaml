@@ -1,7 +1,0 @@
-interface:
-  display_name: "Show AI attribution status"
-  short_description: "Check hook, co-authors, and recent trailers."
-  default_prompt: "Use $show-ai-attribution-status to inspect this repository's AI co-author attribution setup."
-
-policy:
-  allow_implicit_invocation: false
