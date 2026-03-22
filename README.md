@@ -93,6 +93,11 @@ If YAML is wrong, loader returns explicit errors. Common examples:
 python -m unittest discover -s tests
 ```
 
+`pytest` also works:
+```bash
+pytest -q
+```
+
 ### Contributing
 Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
